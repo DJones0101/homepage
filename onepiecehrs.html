@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>How Long is One Piece?</title>
+  <style>
+    /* Kawaii and clean styling */
+    body {
+      background: linear-gradient(135deg, #fddde6, #ffe4e1);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 30px;
+      font-size: 2.5rem;
+      color: #d6336c;
+      text-shadow: 1px 1px 3px #fff;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .info-section {
+      margin: 20px 0;
+      font-size: 1.2rem;
+      color: #555;
+    }
+    .result {
+      font-size: 1.5rem;
+      margin: 20px 0;
+      color: #444;
+    }
+    .comparisons {
+      text-align: left;
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #555;
+    }
+    .comparisons li {
+      margin: 10px 0;
+    }
+    a {
+      color: #d6336c;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    /* Footer hacked message (appears on every page) */
+    .footer {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      color: #fff;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid #fff;
+      border-radius: 4px;
+      padding: 4px 8px;
+      opacity: 0.8;
+      text-shadow: 1px 1px 2px #000;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <h1>How Long is One Piece?</h1>
+  <div class="container">
+    <div class="info-section" id="dataSection">
+      Loading One Piece data...
+    </div>
+    <div class="result" id="totalHours">
+      Total Hours: 0
+    </div>
+    <div class="info-section" id="latestEpisode"></div>
+    <div class="comparisons">
+      <h2>Fun Comparisons</h2>
+      <ul id="comparisonList">
+        <!-- Comparisons will be inserted here -->
+      </ul>
+    </div>
+  </div>
+  
+  <!-- Footer hacked message -->
+  <div class="footer">hacked by Galano🍀💀</div>
+  
+  <script>
+    // Fun comparisons array with description and reference value (in hours)
+    const comparisons = [
+      {
+        description: "hours needed to get your pilot's license (approx 50 hours)",
+        hours: 50
+      },
+      {
+        description: "a full day of Netflix binge-watching (24 hours)",
+        hours: 24
+      },
+      {
+        description: "a weekend road trip (about 40 hours on the road)",
+        hours: 40
+      },
+      {
+        description: "hours in a week (7 days x 24 hours = 168 hours)",
+        hours: 168
+      }
+    ];
+    
+    // Average episode length in minutes
+    const EPISODE_LENGTH = 23;
+    
+    // Function to add leading zeros
+    function padNumber(num) {
+      return num < 10 ? '0' + num : num;
+    }
+    
+    // Main function to update One Piece info
+    async function updateOnePieceInfo() {
+      const dataSection = document.getElementById("dataSection");
+      const totalHoursElem = document.getElementById("totalHours");
+      const latestEpisodeElem = document.getElementById("latestEpisode");
+      const compList = document.getElementById("comparisonList");
+      
+      try {
+        // Fetch episodes endpoint for One Piece (MAL id 21)
+        let episodesRes = await fetch("https://api.jikan.moe/v4/anime/21/episodes");
+        let episodesData = await episodesRes.json();
+        console.log("Episodes Data:", episodesData);
+        
+        // Check if pagination items and total exist
+        if (!episodesData.pagination || !episodesData.pagination.items || typeof episodesData.pagination.items.total !== 'number') {
+          dataSection.textContent = "Could not retrieve total episodes from the API.";
+          return;
+        }
+        
+        const totalEpisodes = episodesData.pagination.items.total;
+        
+        // Calculate total hours
+        const totalMinutes = totalEpisodes * EPISODE_LENGTH;
+        const totalHours = totalMinutes / 60;
+        totalHoursElem.textContent = "Total Hours of One Piece: " + totalHours.toFixed(1) + " hours";
+        
+        // Get the last page and fetch the latest episode info
+        const lastPage = episodesData.pagination.last_visible_page;
+        let lastEpisodesRes = await fetch(`https://api.jikan.moe/v4/anime/21/episodes?page=${lastPage}`);
+        let lastEpisodesData = await lastEpisodesRes.json();
+        if (!lastEpisodesData.data || lastEpisodesData.data.length === 0) {
+          latestEpisodeElem.textContent = "Latest episode info not available.";
+        } else {
+          const episodes = lastEpisodesData.data;
+          const lastEpisode = episodes[episodes.length - 1];
+          const lastTitle = lastEpisode.title || "Unknown Title";
+          const airDate = lastEpisode.aired ? new Date(lastEpisode.aired) : null;
+          const airDateStr = airDate ? `${padNumber(airDate.getMonth() + 1)}/${padNumber(airDate.getDate())}/${airDate.getFullYear()}` : "Unknown Air Date";
+          latestEpisodeElem.textContent = `Latest Episode: "${lastTitle}" aired on ${airDateStr}`;
+        }
+        
+        // Update fun comparisons list
+        compList.innerHTML = "";
+        comparisons.forEach(comp => {
+          const factor = (totalHours / comp.hours).toFixed(1);
+          const li = document.createElement("li");
+          li.innerHTML = `Watching One Piece is like ${factor} times ${comp.description}.`;
+          compList.appendChild(li);
+        });
+        
+        dataSection.textContent = `One Piece currently has ${totalEpisodes} episodes, each approximately ${EPISODE_LENGTH} minutes long.`;
+        
+      } catch (error) {
+        console.error("Error fetching One Piece data:", error);
+        dataSection.textContent = "Error loading One Piece data. Please try again later.";
+      }
+    }
+    
+    // Update info on page load
+    updateOnePieceInfo();
+  </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Home Page</title>
+  <!-- Include a pixeled font for the footer -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* Basic styling */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    nav {
+      margin-top: 10px;
+    }
+    nav a {
+      margin: 0 15px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    /* Main container */
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    /* Profile section */
+    .profile {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .profile img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #333;
+      margin-right: 20px;
+    }
+    .profile-details {
+      flex: 1;
+      min-width: 250px;
+    }
+    .profile-details h2 {
+      margin-top: 0;
+      font-size: 1.8rem;
+    }
+    .profile-details p {
+      font-style: italic;
+    }
+    /* Projects section */
+    .projects h2 {
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .projects ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .projects li {
+      margin-bottom: 10px;
+    }
+    .projects a {
+      text-decoration: none;
+      color: #0066cc;
+    }
+    .projects a:hover {
+      text-decoration: underline;
+    }
+    /* Footer styling: fixed in the bottom right */
+    .footer {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-family: 'Press Start 2P', cursive;
+      color: #fff;
+      font-size: 0.6rem;
+      opacity: 0.8;
+      text-shadow: 1px 1px 2px #000;
+      border: 2px solid #fff;
+      border-radius: 4px;
+      padding: 4px 8px;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+    }
+    /* Footer for the rest of the page */
+    footer.page-footer {
+      text-align: center;
+      margin: 20px auto;
+      padding: 10px;
+      font-size: 0.9rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to My Home Page</h1>
+    <nav>
+      <a href="https://www.linkedin.com/in/djones01/" target="_blank">LinkedIn</a>
+      <a href="https://github.com/DJones0101" target="_blank">GitHub</a>
+    </nav>
+  </header>
+  
+  <div class="container">
+    <!-- Profile Section -->
+    <section class="profile">
+      <img src="avatar.jpg" alt="Avatar">
+      <div class="profile-details">
+        <h2>Galano🍀💀</h2>
+        <p>
+         I’m that mysterious force in the digital realm—part rogue, part code conjurer. I build projects that defy convention and tickle your funny bone, all while keeping my true identity under wraps. (Sometimes, specifically not when I'm looking for work.)
+        </p>
+      </div>
+    </section>
+    
+    <!-- Projects Section -->
+    <section class="projects">
+      <h2>My Stuff</h2>
+      <ul>
+        <li>
+          <a href="Tokyo_Clock.html" target="_blank">Tokyo Time</a>
+          - Not just any clock—this one tells Tokyo time with holiday surprises and kawaii greetings that are so on point, even the ramen chefs check it for inspiration!
+        </li>
+          <a href="donut-timer.html" target="_blank">The Donut Timer</a>
+          - Because who wouldn't want a timer that reminds you it's always time for a donut break?
+        </li>
+        <!-- Add more projects as needed -->
+      </ul>
+    </section>
+  </div>
+  
+  <footer class="page-footer">
+    &copy; 2025 Galano🍀💀. All rights reserved.
+  </footer>
+  
+  <!-- Footer hacked message: include on every page -->
+  <div class="footer">hacked by Galano🍀💀</div>
+</body>
+</html>

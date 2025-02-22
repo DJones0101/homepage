@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tokyo Time - Galano🍀💀</title>
+  <!-- Include a pixeled font from Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Trebuchet MS", sans-serif;
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: pink;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 1s;
+      position: relative;
+    }
+    
+    .clock-container {
+      width: 450px;
+      background-color: rgba(0,0,0,0.6);
+      border-radius: 12px;
+      padding: 20px 30px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px #000;
+      color: #fff;
+    }
+    
+    .greeting {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+    }
+    
+    .clock {
+      margin: 15px 0;
+    }
+    
+    .time {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 2px 2px 4px #000;
+    }
+    
+    .date,
+    .location {
+      font-size: 1rem;
+      color: #fff;
+      margin-top: 5px;
+      opacity: 0.9;
+      text-shadow: 1px 1px 2px #000;
+    }
+    
+    .label {
+      display: block;
+      font-size: 1rem;
+      margin-top: 5px;
+      opacity: 0.9;
+      color: #fff;
+    }
+    
+    .toggle-btn {
+      margin-top: 15px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      background-color: #ff66cc;
+      color: #fff;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      transition: background-color 0.3s;
+    }
+    
+    .toggle-btn:hover {
+      background-color: #e055b3;
+    }
+    
+    @keyframes float {
+      0%   { transform: translateY(0px); }
+      50%  { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    /* Tooltip for holiday emoji */
+    .holiday-container {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    .holiday-tooltip {
+      visibility: hidden;
+      width: 220px;
+      background-color: rgba(0,0,0,0.8);
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%; /* Show above emoji */
+      left: 50%;
+      margin-left: -110px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.7rem;
+      line-height: 1.2;
+    }
+    
+    .holiday-container:hover .holiday-tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .holiday-tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: rgba(0,0,0,0.8) transparent transparent transparent;
+    }
+    
+    /* Footer hacked message */
+    .footer {
+      border: 2px solid #fff;
+      border-radius: 5px;
+      padding: 4px 8px;
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-family: 'Press Start 2P', cursive;
+      color: #fff;
+      font-size: 0.6rem;
+      opacity: 0.8;
+      text-shadow: 1px 1px 2px #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock-container">
+    <h1>Tokyo Time</h1>
+    
+    <!-- Kawaii Greeting based on Tokyo time -->
+    <div class="greeting" id="greeting">おはようございます (Good Morning) 🌸😊</div>
+    
+    <!-- Tokyo Clock displayed first -->
+    <div class="clock" id="tokyoClock">
+      <div class="time" id="tokyoTime">--:--:--</div>
+      <div class="date" id="tokyoDate">--/--/----</div>
+      <!-- Holiday container: appears only on a holiday -->
+      <div class="holiday-container" id="holidayContainer" style="display:none;">
+        <span class="holiday-emoji" id="holidayEmoji"></span>
+        <span class="holiday-tooltip" id="holidayTooltip"></span>
+      </div>
+      <!-- Tokyo label with Japanese flag emoji -->
+      <span class="label">Tokyo Time (UTC+9) 🇯🇵</span>
+    </div>
+    
+    <!-- Local Clock displayed after Tokyo Clock -->
+    <div class="clock" id="localClock">
+      <div class="time" id="localTime">--:--:--</div>
+      <div class="date" id="localDate">--/--/----</div>
+      <div class="location" id="localLocation">Locating...</div>
+      <span class="label">Local Time</span>
+    </div>
+    
+    <button class="toggle-btn" id="toggleFormatBtn">Switch to 12-hour Format</button>
+  </div>
+  
+  <!-- Footer hacked message -->
+  <div class="footer">hacked by Galano🍀💀</div>
+  
+  <script>
+    // Global flag for time format: true for 24-hour, false for 12-hour.
+    let is24Hour = true;
+    
+    // Holidays object mapping fixed month-day strings to holiday data
+    const holidays = {
+      "01-01": {
+        name: "元日 (New Year's Day)",
+        emoji: "🎍",
+        description: "The first day of the year, celebrated with traditional customs.",
+        wiki: "https://en.wikipedia.org/wiki/New_Year%27s_Day"
+      },
+      "02-11": {
+        name: "建国記念の日 (National Foundation Day)",
+        emoji: "🏮",
+        description: "A day to celebrate the founding of Japan.",
+        wiki: "https://en.wikipedia.org/wiki/National_Foundation_Day"
+      },
+      "02-23": {
+        name: "天皇誕生日 (Emperor's Birthday)",
+        emoji: "👑",
+        description: "Celebrates the birthday of the reigning Emperor of Japan.",
+        wiki: "https://en.wikipedia.org/wiki/Emperor%27s_Birthday"
+      },
+      "04-29": {
+        name: "昭和の日 (Showa Day)",
+        emoji: "🎌",
+        description: "A day to reflect on the Showa era.",
+        wiki: "https://en.wikipedia.org/wiki/Showa_Day"
+      },
+      "05-03": {
+        name: "憲法記念日 (Constitution Memorial Day)",
+        emoji: "📜",
+        description: "Commemorates the promulgation of the post-war constitution.",
+        wiki: "https://en.wikipedia.org/wiki/Constitution_Memorial_Day"
+      },
+      "05-04": {
+        name: "みどりの日 (Greenery Day)",
+        emoji: "🌿",
+        description: "A day to appreciate nature and the environment.",
+        wiki: "https://en.wikipedia.org/wiki/Greenery_Day"
+      },
+      "05-05": {
+        name: "こどもの日 (Children's Day)",
+        emoji: "🪁",
+        description: "Celebrates children’s health and happiness.",
+        wiki: "https://en.wikipedia.org/wiki/Children%27s_Day_(Japan)"
+      },
+      "11-03": {
+        name: "文化の日 (Culture Day)",
+        emoji: "🎎",
+        description: "Promotes culture, the arts, and academic endeavor.",
+        wiki: "https://en.wikipedia.org/wiki/Culture_Day"
+      },
+      "11-23": {
+        name: "勤労感謝の日 (Labor Thanksgiving Day)",
+        emoji: "👷‍♂️",
+        description: "Honors workers and celebrates production.",
+        wiki: "https://en.wikipedia.org/wiki/Labor_Thanksgiving_Day_(Japan)"
+      }
+    };
+    
+    // Function to add leading zeros
+    function padNumber(num) {
+      return num < 10 ? '0' + num : num;
+    }
+    
+    // Format time based on the selected format
+    function formatTime(hours, minutes, seconds, use24Hour) {
+      if (use24Hour) {
+        return `${padNumber(hours)}:${padNumber(minutes)}:${padNumber(seconds)}`;
+      } else {
+        const amPM = hours < 12 ? 'AM' : 'PM';
+        let displayHour = hours % 12;
+        displayHour = displayHour === 0 ? 12 : displayHour;
+        return `${padNumber(displayHour)}:${padNumber(minutes)}:${padNumber(seconds)} ${amPM}`;
+      }
+    }
+    
+    // Format date as MM/DD/YYYY
+    function formatDate(dateObj) {
+      const month = padNumber(dateObj.getMonth() + 1);
+      const day = padNumber(dateObj.getDate());
+      const year = dateObj.getFullYear();
+      return `${month}/${day}/${year}`;
+    }
+    
+    // Determine kawaii Japanese greeting based on Tokyo hour
+    function getGreeting(tokyoHour) {
+      if (tokyoHour >= 5 && tokyoHour < 12) {
+        return "おはようございます (Good Morning) 🌸😊";
+      } else if (tokyoHour >= 12 && tokyoHour < 18) {
+        return "こんにちは (Good Afternoon) ☀️🌼";
+      } else {
+        return "こんばんは (Good Evening) 🌙✨";
+      }
+    }
+    
+    // Change background based on local time of day (morning, noon, night)
+    function updateBackground() {
+      const hour = new Date().getHours();
+      let backgroundUrl = '';
+      if (hour >= 5 && hour < 12) {
+        backgroundUrl = 'url("https://via.placeholder.com/1200x800?text=Anime+Morning")';
+      } else if (hour >= 12 && hour < 17) {
+        backgroundUrl = 'url("https://via.placeholder.com/1200x800?text=Anime+Noon")';
+      } else {
+        backgroundUrl = 'url("https://via.placeholder.com/1200x800?text=Anime+Night")';
+      }
+      document.body.style.backgroundImage = backgroundUrl;
+    }
+    
+    // Update clocks, dates, greeting, and check for Tokyo holiday
+    function updateClocks() {
+      const nowLocal = new Date();
+      
+      // Calculate Tokyo time (UTC+9)
+      const nowUTC = nowLocal.getTime() + nowLocal.getTimezoneOffset() * 60000;
+      const tokyoDate = new Date(nowUTC + 9 * 3600000);
+      const tokyoHour = tokyoDate.getHours();
+      
+      // Update greeting based on Tokyo time
+      document.getElementById("greeting").textContent = getGreeting(tokyoHour);
+      
+      // Update Tokyo time and date
+      const tokyoMinutes = tokyoDate.getMinutes();
+      const tokyoSeconds = tokyoDate.getSeconds();
+      const tokyoTimeStr = formatTime(tokyoHour, tokyoMinutes, tokyoSeconds, is24Hour);
+      document.getElementById("tokyoTime").textContent = tokyoTimeStr;
+      document.getElementById("tokyoDate").textContent = formatDate(tokyoDate);
+      
+      // Check if today (Tokyo time) is a holiday based on fixed dates
+      const monthDay = padNumber(tokyoDate.getMonth() + 1) + "-" + padNumber(tokyoDate.getDate());
+      if (holidays[monthDay]) {
+        const holiday = holidays[monthDay];
+        document.getElementById("holidayContainer").style.display = "inline-block";
+        document.getElementById("holidayEmoji").textContent = holiday.emoji;
+        document.getElementById("holidayTooltip").innerHTML = holiday.name + ": " + holiday.description + "<br><a href='" + holiday.wiki + "' target='_blank' style='color:#ff66cc;'>Read more</a>";
+      } else {
+        document.getElementById("holidayContainer").style.display = "none";
+      }
+      
+      // Update local time and date
+      const localHours = nowLocal.getHours();
+      const localMinutes = nowLocal.getMinutes();
+      const localSeconds = nowLocal.getSeconds();
+      const localTimeStr = formatTime(localHours, localMinutes, localSeconds, is24Hour);
+      document.getElementById("localTime").textContent = localTimeStr;
+      document.getElementById("localDate").textContent = formatDate(nowLocal);
+      
+      // Update background
+      updateBackground();
+    }
+    
+    // Toggle between 24-hour and 12-hour formats
+    const toggleBtn = document.getElementById("toggleFormatBtn");
+    toggleBtn.addEventListener("click", () => {
+      is24Hour = !is24Hour;
+      toggleBtn.textContent = is24Hour ? 'Switch to 12-hour Format' : 'Switch to 24-hour Format';
+      updateClocks();
+    });
+    
+    // Fetch local location using IP geolocation (using ipapi.co)
+    function updateLocalLocation() {
+      fetch('https://ipapi.co/json/')
+        .then(response => response.json())
+        .then(data => {
+          const city = data.city;
+          const country = data.country_name;
+          const countryCode = data.country_code;
+          const flag = countryCode
+            .toUpperCase()
+            .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt(0)));
+          document.getElementById("localLocation").textContent = `${city}, ${country} ${flag}`;
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById("localLocation").textContent = "Location unavailable";
+        });
+    }
+    
+    // Start updating clocks and location
+    updateClocks();
+    setInterval(updateClocks, 1000);
+    updateLocalLocation();
+  </script>
+</body>
+</html>
